@@ -1,6 +1,7 @@
 package com.moneybanks.accounts.controller;
 
 import com.moneybanks.accounts.constants.AccountsConstants;
+import com.moneybanks.accounts.dto.AccountsContactInfoDto;
 import com.moneybanks.accounts.dto.CustomerDto;
 import com.moneybanks.accounts.dto.ErrorResponseDto;
 import com.moneybanks.accounts.dto.ResponseDto;
@@ -39,6 +40,9 @@ public class AccountController {
 
     @Autowired
     private Environment environment;
+
+    @Autowired
+    private AccountsContactInfoDto accountsContactInfoDto;
 
     @Operation(
             summary = "Create Account REST API",
@@ -182,6 +186,28 @@ public class AccountController {
     @GetMapping(path = "/java-version", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> getJavaVersion() {
         return ResponseEntity.status(HttpStatus.OK).body(environment.getProperty("JAVA_HOME"));
+    }
+
+    @Operation(
+            summary = "Get Contact Info",
+            description = "Contact Info details that can be reached out in case of any issues"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Interval Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    })
+    @GetMapping(path = "/contact-info")
+    public ResponseEntity<AccountsContactInfoDto> getContactInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(accountsContactInfoDto);
     }
 
 }
