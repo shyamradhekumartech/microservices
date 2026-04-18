@@ -1,0 +1,37 @@
+services:
+  network-deploy-service:
+    networks:
+      - moneybank
+
+  microservice-db-config:
+    extends:
+      service: network-deploy-service
+    image: mysql:8.4
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  microservice-base-config:
+    extends:
+      service: network-deploy-service
+    deploy:
+      resources:
+        limits:
+          memory: 700m
+
+  microservice-configserver-config:
+    extends:
+      service: microservice-base-config
+    depends_on:
+      configserver:
+        condition: service_healthy
+    environment:
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_PROFILES_ACTIVE: qa
+      SPRING_DATABASE_USERNAME: root
+      SPRING_DATABASE_PASSWORD: root
