@@ -52,3 +52,9 @@ info:
     name: "accounts"
     description: "Money Banks Accounts Application"
     version: "1.0.0"
+
+logging:
+  level:
+    com:
+      moneybanks:
+        accounts: DEBUG
