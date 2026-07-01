@@ -6,6 +6,7 @@ import com.moneybanks.accounts.dto.CustomerDto;
 import com.moneybanks.accounts.dto.ErrorResponseDto;
 import com.moneybanks.accounts.dto.ResponseDto;
 import com.moneybanks.accounts.service.IAccountService;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -31,6 +34,8 @@ import org.springframework.web.bind.annotation.*;
         description = "CRUD REST APIs in MoneyBank to CREATE, READ, UPDATE AND DELETE account details"
 )
 public class AccountController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
     @Autowired
     private IAccountService accountService;
@@ -161,9 +166,17 @@ public class AccountController {
                     )
             )
     })
+    @Retry(name = "getBuildInfo", fallbackMethod = "getBuildInfoFallback")
     @GetMapping("/build-info")
     public ResponseEntity<String> getBuildInfo() {
-        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+        logger.debug("getBuildInfo() method invoked");
+        throw new NullPointerException();
+//        return ResponseEntity.status(HttpStatus.OK).body(buildVersion);
+    }
+
+    public ResponseEntity<String> getBuildInfoFallback(Throwable throwable) {
+        logger.debug("getBuildInfoFallback() method invoked");
+        return ResponseEntity.status(HttpStatus.OK).body("0.9");
     }
 
     @Operation(
